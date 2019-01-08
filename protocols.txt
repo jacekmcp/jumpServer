@@ -1,0 +1,32 @@
+Connection:
+    server IP : na razie localhost jak wrzuce na server to dam ip servera
+    port : 4200
+
+    server zwraca clientSockFd w przypadku dołączenia do gry - int po ktorym client bedzie rozpoznawany.
+    ~server zwraca 0 w przypadku pelnej liczby graczy. Po stronie klienta powinna być wyswietlona wiadomość w stylu "too many players, come back later!"
+    @type char[2]
+    @name connHandler
+
+# podczas gdy wysylana jest wiadomość o przyjeciu klienta do grona graczy, losowana jest po stronie servera pozycja poczatkowa gracza. Jest to nastepna wiadomość.
+
+Game:
+    server:
+        receive:
+            @type char[32]
+            [timestamp{10}, przesuniecie{?}, ...?]
+
+
+         sendsToAll:
+            @type char[64]
+            @name updatePos
+            [timestamp{10}, clientFd1{2}, pozycja{?}, clientFd2{2}, pozycja{?}, clientFd3{2}, pozycja{?}, clientFd4{2}, pozycja{?}]
+            # dla graczy nieobecnych (chyba nie bedziemy mogli na sztywno zapisywać, że jeśli jest 2 graczy to beda oni na pozycjach clientFd1 i clientFd2
+            #- beda mogli być na pozycjach clientFd1 i clientFd4) wartość clientFd* będzie rowna "00"
+
+# Rozesłanie aktualnych pozycji wszystkich graczy do wszystkich graczy będzie następowało każdorazowo po odebraniu jakiegokolwiek komunikatu od gracza będącego w grze.
+# Bez sensu moim zdaniem wysyłać pozycje, jeśli nikt sie nie rusza.
+
+Disconnect:
+    server:
+        # server obsługuje rozłączenie gracza - usuwa jego deskryptor z listy itd. Nastepnie wysyła wiadomość @namePos z wartością "00" dla odpowiedniego pola {clientFd}
+
