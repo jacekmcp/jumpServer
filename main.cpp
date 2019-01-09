@@ -18,16 +18,12 @@
 #include <iostream>
 #include <sstream>
 
-//#include "clientPos.cpp"
-//#include "Positions.h"
-
 using namespace std;
 
 class Client;
 
 int servFd;
 int epollFd;
-//Positions* positions = new Positions();
 
 std::unordered_set<Client*> clients;
 
@@ -42,6 +38,8 @@ void sendPositionsToAll();
 void fdToStr(int fd, stringstream& ss);
 
 void intToStr(int num, stringstream& ss);
+
+void killPlayer(int fd);
 
 void sendToAll(char * buffer);
 
@@ -65,10 +63,35 @@ class Client : public Handler{
     clientPos _position;
 private:
     void updateClientPos(char * message){
-        for(int i=0; i<64; i++){
-            cout<<message[i] << " ";
+        stringstream posX;
+        stringstream posY;
+        stringstream ts;
+        stringstream killed;
+
+        for(int i = 0; i<10; i++){
+            ts << message[i];;
         }
-        cout<<endl;
+
+        for(int i = 10; i<13; i++){
+            posX << message[i];;
+        }
+
+        for(int i =13; i<16; i++){
+            posY << message[i];;
+        }
+
+        for(int i = 16; i<18; i++){
+            killed << message[i];
+        }
+        _position.positionX = stoi(posX.str());
+        _position.positionY = stoi(posY.str());
+        int resTimeStamp = stoi(ts.str());
+
+        int killer = stoi(killed.str());
+        if(killer != 0){
+            _points++;
+            killPlayer(killer);
+        }
     }
 
 public:
@@ -289,22 +312,27 @@ void sendToAll(stringstream& ss){
     }
 }
 
+void killPlayer(int fd){
+    auto it = clients.begin();
+    while(it!=clients.end()){
+        Client * client = *it;
+        it++;
+        if(client->fd() == fd){
+            client->points(0);
+
+            clientPos clientPos1 = clientPos();
+            clientPos1.positionX = rand() % 640;
+            clientPos1.positionY = rand() % 480;
+            client->set_position(clientPos1);
+        }
+    }
+}
+
 void sendToAll(char * buffer){
     auto it = clients.begin();
     while(it!=clients.end()){
         Client * client = *it;
         it++;
         client->write(buffer);
-    }
-}
-
-
-void sendToAllBut(int fd, char * buffer){
-    auto it = clients.begin();
-    while(it!=clients.end()){
-        Client * client = *it;
-        it++;
-        if(client->fd()!=fd)
-            client->write(buffer);
     }
 }

@@ -14,7 +14,7 @@ Game:
     server:
         receive:
             @type char[32]
-            [timestamp{10}, pozycjaX{5}, pozycjaY{5}, killFd{2}]
+            [timestamp{10}, pozycjaX{3}, pozycjaY{3}, killFd{2}]
 	# domyślnie kiedy gracz nikogo nie zabija, wysyła killFd = 00. Jeżeli kogoś zabije, wysyła Fd zabitego gracza. Serwer 		na tej podstawie aktualizuje pozycję zabitego gracza (z listy respawn pointów) i przydziela punkty.
 
 
