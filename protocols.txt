@@ -8,18 +8,23 @@ Connection:
     @name connHandler
 
 # podczas gdy wysylana jest wiadomość o przyjeciu klienta do grona graczy, losowana jest po stronie servera pozycja poczatkowa gracza. Jest to nastepna wiadomość.
+# problem bo zależnie od mapy są odpowiednie respawn pointy. może to być po stronie serwera ale może też być po stronie gracza. tzn, albo serwer może mieć listę respawn pointów, albo może wysyłać do gracza tylko flagę "respawn{1}". Prostszy wydaje się być sposób z serwerem posiadającym listę respawn pointów i tak zakładam w dalszej części opisu.
 
 Game:
     server:
         receive:
             @type char[32]
-            [timestamp{10}, przesuniecie{?}, ...?]
+            [timestamp{10}, pozycjaX{5}, pozycjaY{5}, killFd{2}]
+	# domyślnie kiedy gracz nikogo nie zabija, wysyła killFd = 00. Jeżeli kogoś zabije, wysyła Fd zabitego gracza. Serwer 		na tej podstawie aktualizuje pozycję zabitego gracza (z listy respawn pointów) i przydziela punkty.
 
 
          sendsToAll:
             @type char[64]
             @name updatePos
-            [timestamp{10}, clientFd1{2}, pozycja{?}, clientFd2{2}, pozycja{?}, clientFd3{2}, pozycja{?}, clientFd4{2}, pozycja{?}]
+            [timestamp{10}, clientFd1{2}, punkty{2}, pozycjaX{5}, pozycjaY{5}, clientFd2{2}, punkty{2}, pozycjaX{5}, pozycjaY{5}, clientFd3{2}, punkty{2}, pozycjaX{5}, pozycjaY{5}, clientFd4{2}, punkty{2}, pozycjaX{5}, pozycjaY{5}]
+
+	# WAŻNE, nie mieścimy się w 64 pozycjach. czy timestamp musi być długi aż na 10 charów? bo gdyby był 8 to by starczyło 		miejsca. ewentualnie pozycja może być wysyłana jako 4 znaki.
+
             # dla graczy nieobecnych (chyba nie bedziemy mogli na sztywno zapisywać, że jeśli jest 2 graczy to beda oni na pozycjach clientFd1 i clientFd2
             #- beda mogli być na pozycjach clientFd1 i clientFd4) wartość clientFd* będzie rowna "00"
 
@@ -29,4 +34,3 @@ Game:
 Disconnect:
     server:
         # server obsługuje rozłączenie gracza - usuwa jego deskryptor z listy itd. Nastepnie wysyła wiadomość @namePos z wartością "00" dla odpowiedniego pola {clientFd}
-
