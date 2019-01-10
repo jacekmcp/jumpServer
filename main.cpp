@@ -47,6 +47,8 @@ void sendToAll(stringstream& ss);
 
 void sendToAllBut(int fd, char * buffer);
 
+void disconnectClients();
+
 struct Handler {
     virtual ~Handler(){}
     virtual void handleEvent(uint32_t events) = 0;
@@ -61,6 +63,7 @@ class Client : public Handler{
     int _fd;
     int _points;
     clientPos _position;
+    int _timestamp;
 private:
     void updateClientPos(char * message){
         stringstream posX;
@@ -83,14 +86,19 @@ private:
         for(int i = 16; i<18; i++){
             killed << message[i];
         }
-        _position.positionX = stoi(posX.str());
-        _position.positionY = stoi(posY.str());
+
         int resTimeStamp = stoi(ts.str());
 
-        int killer = stoi(killed.str());
-        if(killer != 0){
-            _points++;
-            killPlayer(killer);
+        if(resTimeStamp > _timestamp){
+            _position.positionX = stoi(posX.str());
+            _position.positionY = stoi(posY.str());
+            _timestamp = resTimeStamp;
+
+            int killer = stoi(killed.str());
+            if(killer != 0){
+                _points++;
+                killPlayer(killer);
+            }
         }
     }
 
@@ -101,6 +109,7 @@ public:
         _points = 0;
         _position.positionX = rand() % 640;
         _position.positionY = rand() % 480;
+        _timestamp = time(NULL);
     }
 
     virtual ~Client(){
@@ -250,6 +259,9 @@ void setReuseAddr(int sock){
 
 
 void ctrl_c(int){
+
+    disconnectClients();
+
     for(Client * client : clients)
         delete client;
 
@@ -325,6 +337,16 @@ void killPlayer(int fd){
             clientPos1.positionY = rand() % 480;
             client->set_position(clientPos1);
         }
+    }
+}
+
+void disconnectClients(){
+    auto it = clients.begin();
+    char message[18] = {'0', '0','0','0','0','0','0','0','0','0','0','0','0','0','0','0','0','0'};
+    while(it!=clients.end()){
+        Client * client = *it;
+        it++;
+        client->write(message);
     }
 }
 
