@@ -162,7 +162,7 @@ public:
     }
 
     void read(uint32_t events){
-        char dataFromRead[64], data[9];
+        char dataFromRead[18], data[9];
 
         ssize_t count  = ::read(_fd, dataFromRead, sizeof(dataFromRead)-1);
         if(count <= 0) events |= EPOLLERR;
