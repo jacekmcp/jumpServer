@@ -164,7 +164,7 @@ public:
     void read(uint32_t events){
         char dataFromRead[18], data[9];
 
-        ssize_t count  = ::read(_fd, dataFromRead, sizeof(dataFromRead)-1);
+        ssize_t count  = ::read(_fd, dataFromRead, sizeof(dataFromRead));
         if(count <= 0) events |= EPOLLERR;
 
         if(count == -1){
@@ -176,6 +176,7 @@ public:
         if(count != 0){
             this->updateClientPos(dataFromRead);
         }
+        bzero(dataFromRead, sizeof(dataFromRead));
 
 //        printf("client: %d \t READ: %s \n", _fd, dataFromRead);
     }
