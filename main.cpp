@@ -165,7 +165,6 @@ public:
         if(count <= 0) events |= EPOLLERR;
 
         if(count != 0){
-            cout<<"robie update"<<endl;
             this->updateClientPos(dataFromRead);
             sendPositionsToAll();
         }
@@ -208,10 +207,18 @@ public:
                 char message[2] = "0";
                 ::write(clientFd, message, strlen(message));
             } else {
-                char tmp[2];
-                sprintf(tmp, "%d", clientFd);
-                ::write(clientFd, tmp, strlen(tmp));
-                clients.insert(new Client(clientFd));
+//                char tmp[2];
+                stringstream ss;
+                fdToStr(clientFd, ss);
+
+
+
+//                sprintf(tmp, "%d", clientFd);
+                Client *c = new Client(clientFd);
+
+                ss<<c->get_color();
+                ::write(clientFd, ss.str().c_str(), strlen(ss.str().c_str()));
+                clients.insert(c);
                 sendPositionsToAll();
             }
         }
