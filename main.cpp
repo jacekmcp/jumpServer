@@ -107,6 +107,7 @@ private:
                     _points++;
                     killPlayer(killer);
                 }
+                sendPositionsToAll();
             }
         }
     }
@@ -174,7 +175,6 @@ public:
 
         if(count != 0){
             this->updateClientPos(dataFromRead);
-            sendPositionsToAll();
         }
 
 //        printf("client: %d \t READ: %s \n", _fd, dataFromRead);
