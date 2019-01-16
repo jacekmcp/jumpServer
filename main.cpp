@@ -169,7 +169,6 @@ public:
         }
 
         if(count != 0){
-            cout<<"handle disconnect"<<endl;
             this->updateClientPos(dataFromRead);
             sendPositionsToAll();
         }
