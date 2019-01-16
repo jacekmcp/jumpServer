@@ -97,14 +97,16 @@ private:
         int resTimeStamp = stoi(ts.str()); // tu sie wywala bez sprawdzania warunku count == 0
 
         if(resTimeStamp >= _timestamp){
-            _position.positionX = stoi(posX.str());
-            _position.positionY = stoi(posY.str());
-            _timestamp = resTimeStamp;
+            if(_position.positionX != stoi(posX.str()) or _position.positionY != stoi(posY.str())){
+                _position.positionX = stoi(posX.str());
+                _position.positionY = stoi(posY.str());
+                _timestamp = resTimeStamp;
 
-            int killer = stoi(killed.str());
-            if(killer != 0){
-                _points++;
-                killPlayer(killer);
+                int killer = stoi(killed.str());
+                if(killer != 0){
+                    _points++;
+                    killPlayer(killer);
+                }
             }
         }
     }
