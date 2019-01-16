@@ -97,7 +97,7 @@ private:
         int resTimeStamp = stoi(ts.str()); // tu sie wywala bez sprawdzania warunku count == 0
 
         if(resTimeStamp >= _timestamp){
-//            if(_position.positionX != stoi(posX.str()) or _position.positionY != stoi(posY.str())){
+            if(_position.positionX != stoi(posX.str()) or _position.positionY != stoi(posY.str())){
                 _position.positionX = stoi(posX.str());
                 _position.positionY = stoi(posY.str());
                 _timestamp = resTimeStamp;
@@ -108,7 +108,7 @@ private:
                     killPlayer(killer);
                 }
                 sendPositionsToAll();
-//            }
+            }
         }
     }
 
