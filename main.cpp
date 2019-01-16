@@ -114,8 +114,8 @@ public:
         epoll_event ee {EPOLLIN|EPOLLRDHUP, {.ptr=this}};
         epoll_ctl(epollFd, EPOLL_CTL_ADD, _fd, &ee);
         _points = 0;
-        _position.positionX = rand() % 640;
-        _position.positionY = rand() % 480;
+        _position.positionX = 100;// rand() % 640;
+        _position.positionY = 100;// rand() % 480;
         _timestamp = time(NULL);
         _color = getAvailableColor();
         busy[_color] = true;
