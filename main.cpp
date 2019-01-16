@@ -96,7 +96,7 @@ private:
 
         int resTimeStamp = stoi(ts.str()); // tu sie wywala bez sprawdzania warunku count == 0
 
-        if(resTimeStamp > _timestamp){
+        if(resTimeStamp >= _timestamp){
             _position.positionX = stoi(posX.str());
             _position.positionY = stoi(posY.str());
             _timestamp = resTimeStamp;
