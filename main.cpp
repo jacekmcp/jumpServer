@@ -25,11 +25,15 @@ class Client;
 int servFd;
 int epollFd;
 
+bool busy[4];
+
 std::unordered_set<Client*> clients;
 
 void ctrl_c(int);
 
 uint16_t readPort(char * txt);
+
+int getAvailableColor();
 
 void setReuseAddr(int sock);
 
@@ -59,11 +63,14 @@ struct clientPos{
     int positionY;
 };
 
+
+
 class Client : public Handler{
     int _fd;
     int _points;
     clientPos _position;
     int _timestamp;
+    int _color;
 private:
     void updateClientPos(char * message){
         stringstream posX;
@@ -87,7 +94,7 @@ private:
             killed << message[i];
         }
 
-        int resTimeStamp = stoi(ts.str());
+        int resTimeStamp = stoi(ts.str()); // tu sie wywala bez sprawdzania warunku count == 0
 
         if(resTimeStamp > _timestamp){
             _position.positionX = stoi(posX.str());
@@ -110,11 +117,14 @@ public:
         _position.positionX = rand() % 640;
         _position.positionY = rand() % 480;
         _timestamp = time(NULL);
+        _color = getAvailableColor();
+        busy[_color] = true;
     }
 
     virtual ~Client(){
         epoll_ctl(epollFd, EPOLL_CTL_DEL, _fd, nullptr);
         shutdown(_fd, SHUT_RDWR);
+        busy[_color] = false;
         close(_fd);
     }
 
@@ -123,6 +133,14 @@ public:
     int points() const {return _points;}
     const clientPos &get_position() const {
         return _position;
+    }
+
+    int get_color() const {
+        return _color;
+    }
+
+    void set_color(int _color) {
+        Client::_color = _color;
     }
 
     // setters
@@ -146,9 +164,12 @@ public:
         ssize_t count  = ::read(_fd, dataFromRead, sizeof(dataFromRead)-1);
         if(count <= 0) events |= EPOLLERR;
 
-        this->updateClientPos(dataFromRead);
+        if(count != 0){
+            cout<<"robie update"<<endl;
+            this->updateClientPos(dataFromRead);
+            sendPositionsToAll();
+        }
 
-        sendPositionsToAll();
 //        printf("client: %d \t READ: %s \n", _fd, dataFromRead);
     }
 
@@ -229,6 +250,10 @@ int main(int argc, char ** argv){
 
     srand(time(NULL));
 
+    for (bool &i : busy) {
+        i = false;
+    }
+
     while(true){
         if(-1 == epoll_wait(epollFd, &ee, 1, -1)) {
             error(0,errno,"epoll_wait failed");
@@ -282,6 +307,9 @@ void sendPositionsToAll(){
 
     int i = 0;
     auto it = clients.begin();
+
+    bool localBusy[4] = {false, false, false, false};
+
     while(it!=clients.end()){
         Client * client = *it;
 
@@ -293,12 +321,22 @@ void sendPositionsToAll(){
         intToStr(client->get_position().positionX, ss);
         intToStr(client->get_position().positionY, ss);
 
-        message<<ss.str().c_str();
+        message<<ss.str().c_str()<<client->get_color();
+        localBusy[client->get_color()] = true;
         i++;
     }
 
+
+
     for(i; i<4; i++){
-        message<<"0000000000";
+        for(int j = 0; j<4; j++) {
+            if(!localBusy[j]){
+                localBusy[j] = true;
+                message<<"0000000000"<<j;
+            }
+        }
+
+
     }
 
     sendToAll(message);
@@ -356,5 +394,11 @@ void sendToAll(char * buffer){
         Client * client = *it;
         it++;
         client->write(buffer);
+    }
+}
+
+int getAvailableColor(){
+    for(int i=0; i<4; i++){
+        if(!busy[i]) return i;
     }
 }
