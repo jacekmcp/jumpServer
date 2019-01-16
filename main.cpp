@@ -164,7 +164,12 @@ public:
         ssize_t count  = ::read(_fd, dataFromRead, sizeof(dataFromRead)-1);
         if(count <= 0) events |= EPOLLERR;
 
+        if(count == -1){
+            return;
+        }
+
         if(count != 0){
+            cout<<"handle disconnect"<<endl;
             this->updateClientPos(dataFromRead);
             sendPositionsToAll();
         }
@@ -268,6 +273,7 @@ int main(int argc, char ** argv){
         }
 
         ((Handler*)ee.data.ptr)->handleEvent(ee.events);
+
 
         printf("\t ----------------- \n");
     }
