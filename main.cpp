@@ -168,6 +168,8 @@ public:
             return;
         }
 
+        cout << "gracz "<< _fd <<"wysyła: " << dataFromRead << endl;
+
         if(count != 0){
             this->updateClientPos(dataFromRead);
             sendPositionsToAll();
