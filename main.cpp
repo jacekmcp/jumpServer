@@ -171,24 +171,19 @@ public:
             return;
         }
 
-        cout << "gracz "<< _fd <<"wysyła: " << dataFromRead << endl;
-
         if(count != 0){
             this->updateClientPos(dataFromRead);
         }
         bzero(dataFromRead, sizeof(dataFromRead));
 
-//        printf("client: %d \t READ: %s \n", _fd, dataFromRead);
     }
 
     void write(char * buffer){
         if ( ::write(_fd, buffer, strlen(buffer)) != (int) strlen(buffer) ) perror("write failed");
-//        printf("client: %d \t WRITE: %s \n", _fd, buffer);
     }
 
     void write(stringstream& ss){
         if ( ::write(_fd, ss.str().c_str(), strlen(ss.str().c_str())) != (int) strlen(ss.str().c_str()) ) perror("write failed");
-//        printf("client: %d \t WRITE: %s \n", _fd, ss.str().c_str());
     }
 
     void remove() {
@@ -220,9 +215,6 @@ public:
                 stringstream ss;
                 fdToStr(clientFd, ss);
 
-
-
-//                sprintf(tmp, "%d", clientFd);
                 Client *c = new Client(clientFd);
 
                 ss<<c->get_color();
@@ -278,8 +270,6 @@ int main(int argc, char ** argv){
 
         ((Handler*)ee.data.ptr)->handleEvent(ee.events);
 
-
-        printf("\t ----------------- \n");
     }
 }
 
@@ -343,8 +333,6 @@ void sendPositionsToAll(){
         i++;
     }
 
-
-
     for(i; i<4; i++){
         for(int j = 0; j<4; j++) {
             if(!localBusy[j]){
@@ -385,12 +373,10 @@ void killPlayer(int fd){
         Client * client = *it;
         it++;
         if(client->fd() == fd){
-            client->points(0);
-
-            clientPos clientPos1 = clientPos();
-            clientPos1.positionX = rand() % 640;
-            clientPos1.positionY = rand() % 480;
-            client->set_position(clientPos1);
+//            clientPos clientPos1 = clientPos();
+//            clientPos1.positionX = rand() % 640;
+//            clientPos1.positionY = rand() % 480;
+//            client->set_position(clientPos1);
         }
     }
 }
